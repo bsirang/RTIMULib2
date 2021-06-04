@@ -244,7 +244,7 @@ bool RTIMUICM20948::IMUInit()
         HAL_ERROR2("Incorrect %s id %d\n", IMUName(), result);
         return false;
     }
-    
+
     //  now configure the various components
 
     if (!setGyroConfig())
@@ -255,7 +255,7 @@ bool RTIMUICM20948::IMUInit()
 
     if(!compassSetup())
         return false;
-    
+
     if (!setSampleRate())
         return false;
 
@@ -305,14 +305,14 @@ bool RTIMUICM20948::setGyroConfig()
     // GYRO_CONFIG_1 register is in bank 2
     if (!SelectRegisterBank(ICM20948_BANK2))
         return false;
-    
+
     uint8_t value;
-    
+
     // gyro sample rate
     uint8_t rate = (1100.0 / m_sampleRate) - 1;
     if (!m_settings->HALWrite(m_slaveAddr, ICM20948_GYRO_SMPLRT_DIV, rate, "Failed to write gyro sample rate"))
         return false;
-        
+
     value = (/*m_gyroLpf*/ 4 & 0x07) << 3;
     value |= m_gyroFsr << 1; // gyro fsr
     value |= 1; // enable lpf
@@ -322,7 +322,7 @@ bool RTIMUICM20948::setGyroConfig()
     // TODO: do lower settings have higher noise!?!?  Is 5 ok??
     if (!m_settings->HALWrite(m_slaveAddr, ICM20948_GYRO_CONFIG_2, 0, "Failed to write gyro config"))
         return false;
-    
+
     return true;
 }
 
@@ -331,9 +331,9 @@ bool RTIMUICM20948::setAccelConfig()
     // ACCEL_CONFIG register is in bank 2
     if (!SelectRegisterBank(ICM20948_BANK2))
         return false;
-    
+
     unsigned char value;
-    
+
     // // accelerometer sample rate
 #if 0 // gyro determines output rate
     uint16_t rate = (1125.0 / m_sampleRate) - 1;
@@ -342,7 +342,7 @@ bool RTIMUICM20948::setAccelConfig()
     if (!m_settings->HALWrite(m_slaveAddr, ICM20948_ACCEL_SMPLRT_DIV_2, rate & 0xFF, "Failed to write accelerometer LSB sample rate"))
         return false;
 #endif
-        
+
     // accelerometer fsr
     value = (m_accelFsr << 1);
     value |= (/*m_accelLpf*/ 4 & 0x07) << 3;
@@ -377,7 +377,7 @@ bool RTIMUICM20948::trigger_mag_io()
     if (!m_settings->HALWrite(m_slaveAddr, ICM20948_USER_CTRL, userControl | 0x20, "Failed to set user_ctrl reg")) return false;
     m_settings->delayMs(5);
     if (!m_settings->HALWrite(m_slaveAddr, ICM20948_USER_CTRL, userControl, "Failed to set user_ctrl reg")) return false;
-    
+
     return true;
 }
 
@@ -385,11 +385,11 @@ bool RTIMUICM20948::mag_write(uint8_t reg, uint8_t value)
 {
     if (!SelectRegisterBank(ICM20948_BANK3))
         return false;
-    
+
     if (!m_settings->HALWrite(m_slaveAddr, ICM20948_I2C_SLV0_ADDR, AK09916_I2C_ADDR, "Failed to set magnetometer as slave"))
-        return false;    
+        return false;
     if (!m_settings->HALWrite(m_slaveAddr, ICM20948_I2C_SLV0_REG, reg, "Failed to set magnetometer reg to slave"))
-        return false;    
+        return false;
     if (!m_settings->HALWrite(m_slaveAddr, ICM20948_I2C_SLV0_DO, value, "Failed to set magnetometer reg value to slave"))
         return false;
 
@@ -400,7 +400,7 @@ uint8_t RTIMUICM20948::mag_read(uint8_t reg)
 {
     if (!SelectRegisterBank(ICM20948_BANK3))
         return false;
-    
+
     if (!m_settings->HALWrite(m_slaveAddr, ICM20948_I2C_SLV0_ADDR, AK09916_I2C_ADDR | 0x80, "Failed to set magnetometer as slave")) return false;
     if (!m_settings->HALWrite(m_slaveAddr, ICM20948_I2C_SLV0_REG, reg, "Failed to set magnetometer reg to slave")) return false;
 //    if (!m_settings->HALWrite(m_slaveAddr, ICM20948_I2C_SLV0_DO, 0xff, "Failed to set magnetometer reg value to slave")) return false;
@@ -428,7 +428,7 @@ bool RTIMUICM20948::bypassOn()
 
     userControl &= ~0x20;
 
-    // i2cset -y 1 0x68 0x7F 0x00 && i2cset -y 1 0x68 0x03 
+    // i2cset -y 1 0x68 0x7F 0x00 && i2cset -y 1 0x68 0x03
     if (!m_settings->HALWrite(m_slaveAddr, ICM20948_USER_CTRL, 1, &userControl, "Failed to write user_ctrl reg"))
         return false;
 
@@ -490,7 +490,7 @@ bool RTIMUICM20948::compassSetup()
             printf("ICM20948 has AK09916 wrong ID! %x\n", id);
             return false;
         }
- 
+
         // reset i2c bus and try again...
      }
 
@@ -508,7 +508,7 @@ bool RTIMUICM20948::compassSetup()
             break;
         }
     }
-    
+
     if (!SelectRegisterBank(ICM20948_BANK3)) return false;
     if (!m_settings->HALWrite(m_slaveAddr, ICM20948_I2C_SLV0_ADDR, AK09916_I2C_ADDR | 0x80/*read*/, "Failed to set slave 0 address")) return false;
     if (!m_settings->HALWrite(m_slaveAddr, ICM20948_I2C_SLV0_REG, AK09916_ST1+1, "Failed to set slave 0 reg")) return false;
@@ -520,7 +520,7 @@ bool RTIMUICM20948::compassSetup()
     // needed to ensure correct data if reading without fifo
     if (!m_settings->HALWrite(m_slaveAddr, ICM20948_I2C_MST_DELAY_CTRL, 0x81, "Failed to set mst delay"))
         return false;
-    
+
     m_settings->delayMs(5);
     if (!SelectRegisterBank(ICM20948_BANK0)) return false;
     if (!m_settings->HALWrite(m_slaveAddr, ICM20948_USER_CTRL, 0x22, "Failed to set user_ctrl reg")) return false;
@@ -547,7 +547,7 @@ bool RTIMUICM20948::IMURead()
     if (!m_settings->HALRead(m_slaveAddr, ICM20948_FIFO_COUNTH, 2, fifoCount, "Failed to read fifo count")) {
         return false;
     }
-    
+
     count = ((unsigned int)fifoCount[0] << 8) + fifoCount[1];
     if (count < ICM20948_FIFO_CHUNK_SIZE)
         return false;
@@ -563,7 +563,7 @@ bool RTIMUICM20948::IMURead()
         HAL_INFO("ICM20948 fifo has more than 20 samples!!\n");
         count = 400;
     }
-    
+
     count /= ICM20948_FIFO_CHUNK_SIZE;
     // read fifo data in two reads if more than 10 samples
     int roffset = 0;
@@ -586,9 +586,6 @@ bool RTIMUICM20948::IMURead()
         RTMath::convertToVector(p,    accel, m_accelScale, true);
         RTMath::convertToVector(p+6,  gyro, m_gyroScale, true);
         RTMath::convertToVector(p+12, compass, .6/4, false);
-
-        if(fabs(gyro.x()) > 3 || fabs(gyro.y()) > 3 || fabs(gyro.z()) > 3)
-            printf("AAAHAHA %f %f %f %d %d\n", gyro.x(), gyro.y(), gyro.z(), i, count);
 
         accel_t += accel;
         gyro_t += gyro;
@@ -638,8 +635,6 @@ bool RTIMUICM20948::IMURead()
     //  now update the filter
 
     updateFusion();
-    
+
     return true;
 }
-
-
