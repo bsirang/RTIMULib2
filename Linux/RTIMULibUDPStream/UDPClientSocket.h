@@ -13,8 +13,7 @@
 
 class UDPClientSocket {
 public:
-  UDPClientSocket(std::string host, uint16_t port)
-      : socket_fd_{::socket(AF_INET, SOCK_DGRAM, 0)} {
+  UDPClientSocket() : socket_fd_{::socket(AF_INET, SOCK_DGRAM, 0)} {
     if (socket_fd_ < 0) {
       throw std::system_error(errno, std::generic_category());
     }
