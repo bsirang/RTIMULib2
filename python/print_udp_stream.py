@@ -21,6 +21,15 @@ def receive_and_print(local_ip, local_port):
         mag = unpacked[10:13]
         pose = unpacked[13:16]
 
+        if not accel_valid:
+            print("Accel not valid!")
+        if not gyro_valid:
+            print("Gyro not valid!")
+        if not mag_valid:
+            print("Mag not valid!")
+        if not pose_valid:
+            print("Pose not valid!")
+
         print(
             "accel: {:+7.2f} {:+7.2f} {:+7.2f}   "
             "gyro: {:+7.2f} {:+7.2f} {:+7.2f}    "
@@ -30,6 +39,7 @@ def receive_and_print(local_ip, local_port):
                     gyro[0], gyro[1], gyro[2],
                     mag[0], mag[1], mag[2],
                     pose[0], pose[1], pose[2]), end='\r')
+
 
 if __name__ == "__main__":
     local_ip = sys.argv[1]
