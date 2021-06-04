@@ -11,7 +11,10 @@ public:
 
   void send(const RTIMU_DATA &sample) {
     auto data = convert(sample);
-    client_.sendto(&data, sizeof(data), address_, port_);
+    auto res = client_.sendto(&data, sizeof(data), address_, port_);
+    if (res < 0) {
+      throw std::system_error(errno, std::generic_category());
+    }
   }
 
 private:

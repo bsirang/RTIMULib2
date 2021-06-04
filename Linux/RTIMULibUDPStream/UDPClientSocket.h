@@ -23,7 +23,7 @@ public:
                  uint16_t port) {
     struct sockaddr_in dest_addr {};
     dest_addr.sin_family = AF_INET;
-    dest_addr.sin_port = port;
+    dest_addr.sin_port = htons(port);
     int addr_res = ::inet_pton(AF_INET, address.c_str(), &dest_addr.sin_addr);
     if (addr_res < 0) {
       throw std::system_error(errno, std::generic_category());
