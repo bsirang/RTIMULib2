@@ -24,6 +24,12 @@ private:
       float y;
       float z;
     };
+    struct Quaternion {
+      float scalar;
+      float i;
+      float j;
+      float k;
+    };
     bool accel_valid;
     bool gyro_valid;
     bool mag_valid;
@@ -31,7 +37,7 @@ private:
     Vector3f accel;
     Vector3f gyro;
     Vector3f mag;
-    Vector3f pose;
+    Quaternion orientation;
   };
 
   static IMUSample convert(const RTIMU_DATA &sample) {
@@ -49,9 +55,10 @@ private:
     result.mag.x = sample.compass.x();
     result.mag.y = sample.compass.y();
     result.mag.z = sample.compass.z();
-    result.pose.x = sample.fusionPose.x();
-    result.pose.y = sample.fusionPose.y();
-    result.pose.z = sample.fusionPose.z();
+    result.orientation.scalar = sample.fusionQPose.scalar();
+    result.orientation.i = sample.fusionQPose.x();
+    result.orientation.j = sample.fusionQPose.y();
+    result.orientation.k = sample.fusionQPose.z();
     return result;
   }
   const std::string address_;
