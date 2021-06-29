@@ -94,6 +94,13 @@ int main(int argc, char *argv[]) {
   rateTimer = displayTimer = RTMath::currentUSecsSinceEpoch();
 
   //  now just process data
+  float xmin = 100000.0;
+  float ymin = 100000.0;
+  float zmin = 100000.0;
+
+  float xmax = 0;
+  float ymax = 0;
+  float zmax = 0;
 
   while (1) {
     //  poll at the rate recommended by the IMU
@@ -107,10 +114,37 @@ int main(int argc, char *argv[]) {
 
       now = RTMath::currentUSecsSinceEpoch();
       //  display 10 times per second
-
+      float x = imuData.compass.x();
+      float y = imuData.compass.y();
+      float z = imuData.compass.z();
+      if (x > xmax) {
+        xmax = x;
+      }
+      if (y > ymax) {
+        ymax = y;
+      }
+      if (z > zmax) {
+        zmax = z;
+      }
+      if (x < xmin) {
+        xmin = x;
+      }
+      if (y < ymin) {
+        ymin = y;
+      }
+      if (z < zmin) {
+        zmin = z;
+      }
       if ((now - displayTimer) > 1000000) {
+#if 1
         printf("Sample rate %d: %s\r", sampleRate,
                RTMath::displayDegrees("", imuData.fusionPose));
+#endif
+#if 0
+        printf("mag x = %f max = %f min = %f y = %f max = %f min = %f z = %f "
+               "max = %f min = %f\r",
+               x, xmax, xmin, y, ymax, ymin, z, zmax, zmin);
+#endif
         fflush(stdout);
         displayTimer = now;
       }
