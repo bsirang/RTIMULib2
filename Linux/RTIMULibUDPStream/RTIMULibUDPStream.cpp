@@ -98,9 +98,9 @@ int main(int argc, char *argv[]) {
   float ymin = 100000.0;
   float zmin = 100000.0;
 
-  float xmax = 0;
-  float ymax = 0;
-  float zmax = 0;
+  float xmax = -100000.0;
+  float ymax = -100000.0;
+  float zmax = -100000.0;
 
   while (1) {
     //  poll at the rate recommended by the IMU
