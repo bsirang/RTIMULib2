@@ -109,6 +109,16 @@ int main(int argc, char *argv[]) {
 
     while (imu->IMURead()) {
       RTIMU_DATA imuData = imu->getIMUData();
+
+      auto orientation = imuData.fusionQPose;
+      RTVector3 xAxis(1.0, 0.0, 0.0);
+      RTVector3 zAxis(0.0, 0.0, 1.0);
+      RTQuaternion rot1, rot2;
+      rot1.fromAngleVector(M_PI, xAxis);
+      rot2.fromAngleVector(M_PI / 2.0, zAxis);
+      imuData.fusionQPose = rot2 * (rot1 * orientation);
+      imuData.fusionQPose.toEuler(imuData.fusionPose);
+
       sampleCount++;
       udp_stream.send(imuData);
 
@@ -135,15 +145,21 @@ int main(int argc, char *argv[]) {
       if (z < zmin) {
         zmin = z;
       }
+
       if ((now - displayTimer) > 1000000) {
 #if 1
-        printf("Sample rate %d: %s\r", sampleRate,
+        printf("Sample rate %d: %s\n", sampleRate,
                RTMath::displayDegrees("", imuData.fusionPose));
+        printf("Sample rate %d: %s\r", sampleRate,
+               RTMath::display("", imuData.fusionQPose));
 #endif
 #if 0
         printf("mag x = %f max = %f min = %f y = %f max = %f min = %f z = %f "
                "max = %f min = %f\r",
                x, xmax, xmin, y, ymax, ymin, z, zmax, zmin);
+#endif
+#if 0
+        printf("accel = %f %f %f gyro = %f %f %f mag = %f %f %f\r", imuData.accel.x(), imuData.accel.y(), imuData.accel.z(), imuData.gyro.x(), imuData.gyro.y(), imuData.gyro.z(), imuData.compass.x(), imuData.compass.y(), imuData.compass.z());
 #endif
         fflush(stdout);
         displayTimer = now;

@@ -608,20 +608,15 @@ bool RTIMUICM20948::IMURead()
         m_imuData.compass.setData(i, compass_t.data(i)/compass_count);
     }
     //  sort out gyro axes
-
-    // x fwd y right z down
-    m_imuData.gyro.setX(m_imuData.gyro.x());
-    m_imuData.gyro.setY(-m_imuData.gyro.y());
+    m_imuData.gyro.setX(-m_imuData.gyro.x());
     m_imuData.gyro.setZ(-m_imuData.gyro.z());
 
     //  sort out accel data;
-
-    // x back y left z up
-    m_imuData.accel.setX(-m_imuData.accel.x());
+    m_imuData.accel.setY(-m_imuData.accel.y());
 
     //  sort out compass axes
-
-    // x fwd y right z down
+    m_imuData.compass.setX(-m_imuData.compass.x());
+    m_imuData.compass.setY(-m_imuData.compass.y());
 
     //  now do standard processing
     handleGyroBias();
