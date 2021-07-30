@@ -568,7 +568,7 @@ int RTIMUICM20948::IMUGetPollInterval() {
     return (400 / m_sampleRate);
 }
 
-RTVector3 RTIMUICM20948::applyMagnetometerCalibration() {
+RTVector3 RTIMUICM20948::applyMagnetometerCalibration(RTVector3 compass_uncorrected) {
     // apply custom internal 2D compass calibration
     // XXX move to config file / reorganize code
     // constexpr double x_offset = 15.024;
@@ -580,18 +580,19 @@ RTVector3 RTIMUICM20948::applyMagnetometerCalibration() {
     // constexpr double z_min = -81.900002;
     // constexpr double z_span = z_max - z_min;
     // constexpr double z_mid = z_max - (z_span / 2.0);
-    constexpr double x_offset = -13.512;
-    constexpr double y_offset = -6.074;
-    constexpr double width_magnitude = 21.350;
-    constexpr double height_magnitude = 22.811;
-    constexpr double phi = 0.093;
-    constexpr double z_max = 51.815;
-    constexpr double z_min = 42.238;
+    constexpr double x_offset = -13.815;
+    constexpr double y_offset = -7.741;
+    constexpr double width_magnitude = 22.148;
+    constexpr double height_magnitude = 22.690;
+    constexpr double phi = -0.230;
+    constexpr double z_max = -33.274;
+    constexpr double z_min = -44.066;
+
     constexpr double z_span = z_max - z_min;
     constexpr double z_mid = z_max - (z_span / 2.0);
 
 
-    RTVector3 mag_rotated = performTiltCompensation(m_imuData.compass_uncorrected);
+    RTVector3 mag_rotated = performTiltCompensation(compass_uncorrected);
 
     double compass_x = mag_rotated.x();
     double compass_y = mag_rotated.y();
@@ -607,7 +608,7 @@ RTVector3 RTIMUICM20948::applyMagnetometerCalibration() {
     compass_x = std::cos(phi) * rotated_x - std::sin(phi) * rotated_y;
     compass_y = std::sin(phi) * rotated_x + std::cos(phi) * rotated_y;
 
-    const double compass_z = 2.0 * ((m_imuData.compass.z() - z_mid) / z_span);
+    const double compass_z = 2.0 * ((mag_rotated.z() - z_mid) / z_span);
 
     mag_rotated.setX(compass_x);
     mag_rotated.setY(compass_y);
@@ -701,7 +702,7 @@ bool RTIMUICM20948::IMURead() {
   m_imuData.compass_uncorrected.setX(-m_imuData.compass_uncorrected.x());
   m_imuData.compass_uncorrected.setY(-m_imuData.compass_uncorrected.y());
 
-  m_imuData.compass = applyMagnetometerCalibration();
+  m_imuData.compass = applyMagnetometerCalibration(m_imuData.compass_uncorrected);
 
   //  now do standard processing
   handleGyroBias();

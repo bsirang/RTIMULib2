@@ -71,7 +71,7 @@ private:
     bool resetFifo();
     bool bypassOn();
     bool bypassOff();
-    RTVector3 applyMagnetometerCalibration();
+    RTVector3 applyMagnetometerCalibration(RTVector3 compass_uncorrected);
 
     bool m_firstTime;                                       // if first sample
 
