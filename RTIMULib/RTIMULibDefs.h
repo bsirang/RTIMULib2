@@ -55,6 +55,7 @@ typedef struct
     RTVector3 accel;
     bool compassValid;
     RTVector3 compass;
+    RTVector3 compass_uncorrected;
     bool pressureValid;
     RTFLOAT pressure;
     bool temperatureValid;
