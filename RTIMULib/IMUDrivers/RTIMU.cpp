@@ -489,14 +489,16 @@ void RTIMU::setExtIMUData(RTFLOAT gx, RTFLOAT gy, RTFLOAT gz, RTFLOAT ax, RTFLOA
 
 RTVector3 RTIMU::performTiltCompensation(RTVector3 original) const {
   RTQuaternion rotation;
-  m_imuData.accel.accelToQuaternion(rotation);
+  RTVector3 gravity(-m_imuData.accel.x(), -m_imuData.accel.y(), -m_imuData.accel.z());
+  gravity.accelToQuaternion(rotation);
   original.rotateByQuaternion(rotation);
   return original;
 }
 
 RTVector3 RTIMU::reverseTiltCompensation(RTVector3 rotated) const {
   RTQuaternion r_conj;
-  m_imuData.accel.accelToQuaternion(r_conj);
+  RTVector3 gravity(-m_imuData.accel.x(), -m_imuData.accel.y(), -m_imuData.accel.z());
+  gravity.accelToQuaternion(r_conj);
   r_conj = r_conj.conjugate();
   rotated.rotateByQuaternion(r_conj);
   return rotated;
