@@ -94,14 +94,6 @@ int main(int argc, char *argv[]) {
   rateTimer = displayTimer = RTMath::currentUSecsSinceEpoch();
 
   //  now just process data
-  float xmin = 100000.0;
-  float ymin = 100000.0;
-  float zmin = 100000.0;
-
-  float xmax = -100000.0;
-  float ymax = -100000.0;
-  float zmax = -100000.0;
-
   while (1) {
     //  poll at the rate recommended by the IMU
 
@@ -111,8 +103,8 @@ int main(int argc, char *argv[]) {
       RTIMU_DATA imuData = imu->getIMUData();
 
       auto orientation = imuData.fusionQPose;
-      RTVector3 xAxis(1.0, 0.0, 0.0);
-      RTVector3 zAxis(0.0, 0.0, 1.0);
+      const RTVector3 xAxis(1.0, 0.0, 0.0);
+      const RTVector3 zAxis(0.0, 0.0, 1.0);
       RTQuaternion rot1, rot2;
       rot1.fromAngleVector(M_PI, xAxis);
       rot2.fromAngleVector(M_PI / 2.0, zAxis);
@@ -124,42 +116,24 @@ int main(int argc, char *argv[]) {
 
       now = RTMath::currentUSecsSinceEpoch();
       //  display 10 times per second
-      float x = imuData.compass.x();
-      float y = imuData.compass.y();
-      float z = imuData.compass.z();
-      if (x > xmax) {
-        xmax = x;
-      }
-      if (y > ymax) {
-        ymax = y;
-      }
-      if (z > zmax) {
-        zmax = z;
-      }
-      if (x < xmin) {
-        xmin = x;
-      }
-      if (y < ymin) {
-        ymin = y;
-      }
-      if (z < zmin) {
-        zmin = z;
-      }
 
-      if ((now - displayTimer) > 1000000) {
-#if 1
-        printf("Sample rate %d: %s\n", sampleRate,
-               RTMath::displayDegrees("", imuData.fusionPose));
+      if ((now - displayTimer) > 100000) {
+#if 0
         printf("Sample rate %d: %s\r", sampleRate,
-               RTMath::display("", imuData.fusionQPose));
+               RTMath::displayDegrees("", imuData.fusionPose));
+        // printf("Sample rate %d: %s\r", sampleRate,
+        //        RTMath::display("", imuData.fusionQPose));
+#endif
+#if 1
+        const RTVector3 mag_rotated = imu->performTiltCompensation(imuData.compass_uncorrected);
+        const RTVector3& mag_raw = imuData.compass_uncorrected;
+        const RTVector3& mag = imuData.compass;
+        printf("%f,%f,%f,%f,%f,%f,%f,%f,%f\n", mag_raw.x(), mag_raw.y(), mag_raw.z(), mag_rotated.x(), mag_rotated.y(), mag_rotated.z(), imuData.accel.x(), imuData.accel.y(), imuData.accel.z());
+        // printf("%f,%f,%f,%f,%f,%f,%f,%f,%f\n", x, y, z, mag_rotated.x(), mag_rotated.y(), mag_rotated.z(), mag_restored.x(), mag_restored.y(), mag_restored.z());
+        // printf("%f,%f,%f,%f,%f,%f\n", x, y, z, imuData.accel.x(), imuData.accel.y(), imuData.accel.z());
 #endif
 #if 0
-        printf("mag x = %f max = %f min = %f y = %f max = %f min = %f z = %f "
-               "max = %f min = %f\r",
-               x, xmax, xmin, y, ymax, ymin, z, zmax, zmin);
-#endif
-#if 0
-        printf("accel = %f %f %f gyro = %f %f %f mag = %f %f %f\r", imuData.accel.x(), imuData.accel.y(), imuData.accel.z(), imuData.gyro.x(), imuData.gyro.y(), imuData.gyro.z(), imuData.compass.x(), imuData.compass.y(), imuData.compass.z());
+        printf("accel = %f %f %f gyro = %f %f %f mag = %f %f %f\n", imuData.accel.x(), imuData.accel.y(), imuData.accel.z(), imuData.gyro.x(), imuData.gyro.y(), imuData.gyro.z(), imuData.compass.x(), imuData.compass.y(), imuData.compass.z());
 #endif
         fflush(stdout);
         displayTimer = now;
