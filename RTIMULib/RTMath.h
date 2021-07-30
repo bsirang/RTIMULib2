@@ -84,6 +84,7 @@ public:
 
     const RTVector3&  operator +=(RTVector3& vec);
     const RTVector3&  operator -=(RTVector3& vec);
+    const RTVector3&  operator *=(const RTFLOAT& val);
 
     RTVector3& operator =(const RTVector3& vec);
 
@@ -98,6 +99,8 @@ public:
 
     void accelToEuler(RTVector3& rollPitchYaw) const;
     void accelToQuaternion(RTQuaternion& qPose) const;
+
+    void rotateByQuaternion(const RTQuaternion& r);
 
     inline RTFLOAT x() const { return m_data[0]; }
     inline RTFLOAT y() const { return m_data[1]; }
@@ -138,6 +141,7 @@ public:
     void toEuler(RTVector3& vec);
     void fromEuler(RTVector3& vec);
     RTQuaternion conjugate() const;
+    RTQuaternion inverse() const;
     void toAngleVector(RTFLOAT& angle, RTVector3& vec);
     void fromAngleVector(const RTFLOAT& angle, const RTVector3& vec);
 

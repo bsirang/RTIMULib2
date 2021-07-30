@@ -186,6 +186,13 @@ const RTVector3& RTVector3::operator -=(RTVector3& vec)
     return *this;
 }
 
+const RTVector3& RTVector3::operator *=(const RTFLOAT& val) {
+  this->setX(this->x() * val);
+  this->setY(this->y() * val);
+  this->setZ(this->z() * val);
+  return *this;
+}
+
 void RTVector3::zero()
 {
     for (int i = 0; i < 3; i++)
@@ -231,6 +238,17 @@ void RTVector3::accelToQuaternion(RTQuaternion& qPose) const
     vec.normalize();
 
     qPose.fromAngleVector(angle, vec);
+}
+
+
+void RTVector3::rotateByQuaternion(const RTQuaternion& r) {
+  // Represent this vector in quaternion form
+  RTQuaternion vec(0.0, this->x(), this->y(), this->z());
+  RTQuaternion result = (r * vec) * r.conjugate();
+
+  this->setX(result.x());
+  this->setY(result.y());
+  this->setZ(result.z());
 }
 
 
@@ -417,6 +435,13 @@ RTQuaternion RTQuaternion::conjugate() const
     q.setY(-m_data[2]);
     q.setZ(-m_data[3]);
     return q;
+}
+
+RTQuaternion RTQuaternion::inverse() const {
+  // XXX divide by zero check
+  double scalar = 1.0 / this->scalar() * this->scalar() +
+    this->x() * this->x() + this->y() * this->y() + this->z() * this->z();
+  return this->conjugate() * scalar;
 }
 
 void RTQuaternion::toAngleVector(RTFLOAT& angle, RTVector3& vec)
@@ -627,4 +652,3 @@ RTFLOAT RTMatrix4x4::matMinor(const int row, const int col)
     res -= m_data[rc[0]][cc[2]] * m_data[rc[1]][cc[1]] * m_data[rc[2]][cc[0]];
     return res;
 }
-
