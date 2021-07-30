@@ -160,6 +160,8 @@ public:
 
     RTVector3 getAccelResiduals() { return m_fusion->getAccelResiduals(CalibratedAccel()); }
 
+    RTVector3 calculateTiltCompensatedCompass();
+
 protected:
     void gyroBiasInit();                                    // sets up gyro bias calculation
     void handleGyroBias();                                  // adjust gyro for bias

@@ -103,7 +103,7 @@ RTIMU *RTIMU::createIMU(RTIMUSettings *settings)
 
     case RTIMU_TYPE_MPU925x:
         return new RTIMUMPU925x(settings);
-    
+
     case RTIMU_TYPE_ICM20948:
         return new RTIMUICM20948(settings);
 
@@ -341,7 +341,7 @@ void RTIMU::calibrateAverageCompass()
 void RTIMU::calibrateAccel()
 {
     return; // unreliable method
-    
+
     if (!getAccelCalibrationValid())
         return;
 
@@ -383,7 +383,7 @@ void RTIMU::updateFusion()
     RTIMU_DATA imuData = m_imuData;
 
     imuData.accel = CalibratedAccel();
-    
+
         // apply ellipsoid parameters
     if (getCompassCalibrationValid() || getRuntimeCompassCalibrationValid()) {
         imuData.compass.setX((imuData.compass.x() - m_compassCalOffset[0]) * m_compassCalScale[0]);
@@ -457,7 +457,7 @@ void RTIMU::updateFusion()
             imuData.compass.setZ(tempIMU.compass.z() * matrix[8]);
         }
     }
-    
+
     m_fusion->newIMUData(imuData, m_settings);
 
     m_imuData.fusionPoseValid = imuData.fusionPoseValid;
@@ -485,4 +485,12 @@ void RTIMU::setExtIMUData(RTFLOAT gx, RTFLOAT gy, RTFLOAT gz, RTFLOAT ax, RTFLOA
      m_imuData.compass.setZ(mz);
      m_imuData.timestamp = timestamp;
      updateFusion();
+}
+
+RTVector3 RTIMU::calculateTiltCompensatedCompass() {
+  RTQuaternion rotation;
+  m_imuData.accel.accelToQuaternion(rotation);
+  RTVector3 compass_rotated = m_imuData.compass;
+  compass_rotated.rotateByQuaternion(rotation);
+  return compass_rotated;
 }
