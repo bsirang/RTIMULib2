@@ -439,8 +439,8 @@ RTQuaternion RTQuaternion::conjugate() const
 
 RTQuaternion RTQuaternion::inverse() const {
   // XXX divide by zero check
-  double scalar = 1.0 / this->scalar() * this->scalar() +
-    this->x() * this->x() + this->y() * this->y() + this->z() * this->z();
+  double scalar = 1.0 / (this->scalar() * this->scalar() +
+    this->x() * this->x() + this->y() * this->y() + this->z() * this->z());
   return this->conjugate() * scalar;
 }
 
