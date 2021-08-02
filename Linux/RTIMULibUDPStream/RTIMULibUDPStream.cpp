@@ -27,6 +27,9 @@
 #include <iostream>
 #include <string>
 
+// Set to 1 to output raw data in CSV for offboard calibration
+#define CALIBRATION_MODE 0
+
 void print_usage(std::string name) {
   std::cout << name << ": <destination_host> <destination_port>" << std::endl;
 }
@@ -112,26 +115,25 @@ int main(int argc, char *argv[]) {
       imuData.fusionQPose.toEuler(imuData.fusionPose);
 
       sampleCount++;
+
+#if !CALIBRATION_MODE
       udp_stream.send(imuData);
+#endif
 
       now = RTMath::currentUSecsSinceEpoch();
       //  display 10 times per second
 
       if ((now - displayTimer) > 100000) {
-#if 0
-        printf("Sample rate %d: %s\r", sampleRate,
-               RTMath::displayDegrees("", imuData.fusionPose));
-        // printf("Sample rate %d: %s\r", sampleRate,
-        //        RTMath::display("", imuData.fusionQPose));
-#endif
-#if 1
+
+#if CALIBRATION_MODE
         const RTVector3 mag_rotated = imu->performTiltCompensation(imuData.compass_uncorrected);
         const RTVector3& mag_raw = imuData.compass_uncorrected;
-        const RTVector3& mag = imuData.compass;
         printf("%f,%f,%f,%f,%f,%f,%f,%f,%f\n", mag_raw.x(), mag_raw.y(), mag_raw.z(), mag_rotated.x(), mag_rotated.y(), mag_rotated.z(), imuData.accel.x(), imuData.accel.y(), imuData.accel.z());
-        // printf("%f,%f,%f,%f,%f,%f,%f,%f,%f\n", x, y, z, mag_rotated.x(), mag_rotated.y(), mag_rotated.z(), mag_restored.x(), mag_restored.y(), mag_restored.z());
-        // printf("%f,%f,%f,%f,%f,%f\n", x, y, z, imuData.accel.x(), imuData.accel.y(), imuData.accel.z());
+#else
+        printf("Sample rate %d: %s\r", sampleRate,
+               RTMath::displayDegrees("", imuData.fusionPose));
 #endif
+
 #if 0
         printf("accel = %f %f %f gyro = %f %f %f mag = %f %f %f\n", imuData.accel.x(), imuData.accel.y(), imuData.accel.z(), imuData.gyro.x(), imuData.gyro.y(), imuData.gyro.z(), imuData.compass.x(), imuData.compass.y(), imuData.compass.z());
 #endif
