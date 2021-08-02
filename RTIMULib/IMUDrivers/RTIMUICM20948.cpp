@@ -576,27 +576,17 @@ RTVector3 RTIMUICM20948::applyMagnetometerCalibration(RTVector3 compass_uncorrec
     // constexpr double width_magnitude = 19.901;
     // constexpr double height_magnitude = 16.192;
     // constexpr double phi = -0.188;
-    // constexpr double z_max = -68.25;
-    // constexpr double z_min = -81.900002;
-    // constexpr double z_span = z_max - z_min;
-    // constexpr double z_mid = z_max - (z_span / 2.0);
-    constexpr double x_offset = -13.815;
-    constexpr double y_offset = -7.741;
-    constexpr double width_magnitude = 22.148;
-    constexpr double height_magnitude = 22.690;
-    constexpr double phi = -0.230;
-    constexpr double z_max = -33.274;
-    constexpr double z_min = -44.066;
-
-    constexpr double z_span = z_max - z_min;
-    constexpr double z_mid = z_max - (z_span / 2.0);
-
+    constexpr double x_offset = -12.422;
+    constexpr double y_offset = -8.051;
+    constexpr double width_magnitude = 22.794;
+    constexpr double height_magnitude = 23.935;
+    constexpr double phi = -0.177;
 
     RTVector3 mag_rotated = performTiltCompensation(compass_uncorrected);
-
     double compass_x = mag_rotated.x();
     double compass_y = mag_rotated.y();
 
+    // Apply 2D calibration in X/Y plane
     compass_x -= x_offset;
     compass_y -= y_offset;
 
@@ -608,11 +598,12 @@ RTVector3 RTIMUICM20948::applyMagnetometerCalibration(RTVector3 compass_uncorrec
     compass_x = std::cos(phi) * rotated_x - std::sin(phi) * rotated_y;
     compass_y = std::sin(phi) * rotated_x + std::cos(phi) * rotated_y;
 
-    const double compass_z = 2.0 * ((mag_rotated.z() - z_mid) / z_span);
-
+    // Flatten z-axis in gravity normal plane, and normalize vector in 2D
+    const double compass_z = 0.0;
     mag_rotated.setX(compass_x);
     mag_rotated.setY(compass_y);
     mag_rotated.setZ(compass_z);
+    mag_rotated.normalize();
 
     return reverseTiltCompensation(mag_rotated);
 }
